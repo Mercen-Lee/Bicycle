@@ -1,6 +1,7 @@
 # Bicycle Transfiler
 
 from sys import argv
+from shlex import split
 
 class BicycleIO:
 
@@ -19,6 +20,8 @@ class BicycleIO:
             for i, arg in enumerate(argv):
                 if arg.startswith('-'):
                     for subArg in arg[1:]:
+
+                        # Argument Parser
                         if subArg == 'h':
                             print('\n'.join(['사용법: bicycle [파일명] [매개 변수...]',
                             '   -h: 도움말 출력',
@@ -29,6 +32,7 @@ class BicycleIO:
                             self.output = argv.pop(i+1)
                         elif subArg == 'r':
                             self.run = True
+
                 else:
                     if 'input' not in dir(self):
                         self.input = argv[i]   
@@ -55,9 +59,34 @@ class BicycleIO:
             self.Exception('출력에 실패했습니다.')
 
 IO = BicycleIO()
-CODE = '# Transfiled from Bicycle'
+CODE = '# Transfiled from Bicycle\n'
 
-#for line in IO.Read().splitlines():
+for line in IO.Read().splitlines():
 
+    nil = (len(line) - len(line.lstrip()))
+
+    # Parsing
+    cmd = split(line, posix = False)
+
+    # Removing Exception
+    if not cmd:
+        out = line
+        continue
+
+    # Print Function
+    if cmd[-1] == '출력':
+        out = f'print({" ".join(cmd[:-1])})'
+    
+    # Conditional
+    elif cmd[0] == '만약':
+        out = f'if {" ".join(cmd[1:])}'
+
+    else:
+        out = line
+
+    CODE += f'\n{nil * " " + out}'
+
+print(CODE)
+
+print('변환을 완료했습니다.\n')
 IO.Write(CODE)
-print('변환을 완료했습니다.')
