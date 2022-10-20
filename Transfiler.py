@@ -2,6 +2,7 @@
 
 from sys import argv
 from shlex import split
+from re import sub
 
 class BicycleIO:
 
@@ -67,6 +68,10 @@ for line in IO.Read().splitlines():
 
     # Parsing
     cmd = split(line, posix = False)
+    for idx, item in enumerate(cmd):
+        if item[0] in ['\'', '"']:
+            item = sub(r"(\\\()", "{", item)
+            cmd[idx] = 'f' + sub(r"[\)]", "}", item)
 
     # Removing Exception
     if not cmd:
@@ -74,12 +79,33 @@ for line in IO.Read().splitlines():
         continue
 
     # Print Function
-    if cmd[-1] == '출력':
+    if cmd[-1] in ['출력', '말하기']:
         out = f'print({" ".join(cmd[:-1])})'
     
     # Conditional
-    elif cmd[0] == '만약':
+    elif cmd[0] in ['만약', '만약에']:
         out = f'if {" ".join(cmd[1:])}'
+
+    # Conditional
+    elif cmd[0] in ['아니라면:', '아니면:']:
+        out = 'else:'
+
+    # Function
+    elif cmd[-1] in ['반환', '돌려주기']:
+        out = f'return {" ".join(cmd[:-1])}'
+
+    # For
+    elif cmd[-1].endswith('까지:'):
+        if cmd[-2].endswith('부터'):
+            outRange = cmd[-2][:-2]
+        else: outRange = 0
+        out = f'for {cmd[0][:-1]} in range({outRange}, {cmd[-1][:-3]}):'
+    
+    elif cmd[-1].endswith('로부터:'):
+        if cmd[-1][-5] == '으':
+            outTrim = 5
+        else: outTrim = 4
+        out = f'for {cmd[0][:-1]} in {cmd[-1][:-outTrim]}:'
 
     else:
         out = line
