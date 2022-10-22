@@ -144,6 +144,10 @@ def Transfile(original):
             else: outTrim = 4
             out = f'for {cmd[0][:-1]} in {cmd[-1][:-outTrim]}:'
 
+        elif cmd[-1] == '종료':
+            CODE += f'\n{nil * " "}break'
+            continue
+
         elif cmd[-1] == '불러오기':
             mod = open(cmd[0] + '.byc', encoding = 'UTF-8').read()
             for item in mod.splitlines():
@@ -154,7 +158,7 @@ def Transfile(original):
             continue
 
         else:
-            CODE += f'\n{" ".join(cmd)}'
+            CODE += f'\n{nil * " "}{" ".join(cmd)}'
             continue
 
         CODE += f'\n{nil * " " + out}'
